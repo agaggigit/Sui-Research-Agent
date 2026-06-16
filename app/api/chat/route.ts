@@ -29,7 +29,7 @@ export async function POST(req: Request) {
         },
       });
 
-      return result.toDataStreamResponse();
+      return result.toTextStreamResponse();
     } catch (geminiError) {
       console.warn("Gemini failed, falling back to Groq:", geminiError);
       
@@ -42,7 +42,7 @@ export async function POST(req: Request) {
         },
       });
 
-      return result.toDataStreamResponse();
+      return result.toTextStreamResponse();
     }
   } catch (error) {
     console.error("Chat endpoint error:", error);
