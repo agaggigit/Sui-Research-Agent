@@ -28,17 +28,7 @@ async function testChat() {
       if (done) break;
       
       const chunk = decoder.decode(value, { stream: true });
-      const lines = chunk.split('\n');
-      for (const line of lines) {
-        if (line.startsWith('0:')) {
-            try {
-                const textChunk = JSON.parse(line.slice(2));
-                process.stdout.write(textChunk);
-            } catch (e) {
-                // ignore parsing errors for partial chunks
-            }
-        }
-      }
+      process.stdout.write(chunk);
     }
     console.log("\n\nDone.");
   } catch (error) {
