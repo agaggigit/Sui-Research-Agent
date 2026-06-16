@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "@ai-sdk/google": "^3.0.82",
+    "@ai-sdk/openai": "^3.0.71",
+    "ai": "^6.0.206",
+    "openai": "^6.42.0",
+    "zod": "^4.4.3"
+  }
+}
