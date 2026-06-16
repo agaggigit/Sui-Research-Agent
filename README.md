@@ -1,21 +1,37 @@
-# Sui-Research-Agent
+# AURA: Sui-Based Research Agent
 
-Namanya AURA
+Selamat datang di repositori utama **AURA**. Proyek ini adalah sebuah aplikasi Web3 berbasis AI dan jaringan Sui yang dirancang untuk menjadi asisten produktivitas dan riset yang interaktif, memiliki memori jangka panjang (via Walrus), dan memiliki kepribadian (Tavern Keeper & Zen Mode).
 
-Kalo mau jalanin gini:
-> npm run dev:frontend
+## 🏗 Arsitektur Monorepo
 
-Cara pengerjaan:
-- Setiap ada folder baru harus ada README.md nya di masing-masing folder, fungsinya agar setiap developer dapat tahu apa isi dari folder tersebut dan tidak terjadi salah paham, saling timpa, saling ambil job, ataupun salah menaruh kode.
+Proyek ini menggunakan arsitektur pemisahan sistem (Microservices-style) untuk menjaga kode tetap bersih, mudah di- *scale*, dan mencegah bentrok konfigurasi.
 
----
+Berikut adalah struktur utama direktori kita:
 
-## Pembaruan (Week 1 - Backend AI Layer)
+- 📂 **[`/frontend`](./frontend/)** - Aplikasi Web (UI) menggunakan Next.js. Di sinilah semua desain visual, komponen antarmuka, dan interaksi pengguna terjadi.
+- 📂 **[`/backend`](./backend/)** - Server API menggunakan Node.js Express. Bertanggung jawab mengatur logika LLM (Vercel AI SDK), koneksi ke model AI (Gemini/Groq), dan ekstraksi memori.
+- 📂 **[`/agents`](./agents/)** - Script terpisah, *worker*, atau AI Agent spesifik (bisa berupa Python/Node) yang berjalan independen di luar server API utama.
+- 📂 **[`/contracts`](./contracts/)** - Kode Smart Contract untuk jaringan Sui (menggunakan bahasa pemrograman Move).
 
-Pada tahap ini, kita telah menambahkan dan mengatur layer Backend AI untuk aplikasi **Aura**. Berikut adalah rangkuman perubahan pada folder utama (root):
+## 🚀 Cara Menjalankan Proyek Secara Lokal
 
-- **Pemisahan Lingkungan Frontend & Backend**: Repositori ini di-setup agar memiliki dua instansi berjalan yang independen:
-  - **Backend (Root)**: Endpoint API AI berada di folder utama (root). Dijalankan dengan perintah `npm run dev` (berjalan di localhost:3000). Library utama seperti Next.js, React, `@ai-sdk/google`, dan `@ai-sdk/openai` diinstal di `package.json` root ini.
-  - **Frontend (`frontend/`)**: UI proyek berada di folder `frontend`. Dapat dijalankan dari root dengan script `npm run dev:frontend`.
-- **Pengaturan Environment Variables**: Menambahkan file `.env.example` dan `.env.local` di folder root untuk menampung *API key* yang dibutuhkan oleh Vercel AI SDK (seperti `GOOGLE_GENERATIVE_AI_API_KEY` dan `GROQ_API_KEY`).
-- **Penambahan Script di `package.json`**: Menambahkan script `"dev": "next dev"` agar backend bisa dijalankan sendiri dari root.
+Karena *Frontend* dan *Backend* dipisah, kamu perlu menjalankan dua proses secara bersamaan di terminal yang berbeda.
+
+### Terminal 1: Backend
+Masuk ke folder `backend`, lalu jalankan server API (secara *default* akan berjalan di `http://localhost:3001`):
+```bash
+cd backend
+npm run dev
+```
+
+### Terminal 2: Frontend
+Buka terminal baru, masuk ke folder `frontend`, lalu jalankan *server* Next.js (berjalan di `http://localhost:3000`):
+```bash
+cd frontend
+npm run dev
+```
+
+## 📜 Aturan Umum Kontribusi
+1. **Jangan gabungkan *dependencies*:** Pastikan instalasi library React hanya di dalam `frontend/package.json` dan library server di `backend/package.json`. Jangan meletakkan `package.json` di *root directory*.
+2. **Perhatikan Port:** Selalu pastikan port 3000 dan 3001 kosong sebelum menjalankan *script* *development*.
+3. **Penyimpanan `.env`:** Simpan API Key AI (Gemini/Groq) di dalam file `backend/.env`.

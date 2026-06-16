@@ -1,0 +1,29 @@
+### Test Chat API (Gemini/Groq)
+POST http://localhost:3001/api/chat
+Content-Type: application/json
+
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "Aku hari ini capek banget abis ngerjain codingan react dari pagi sampe malem."
+    }
+  ]
+}
+
+### Test dengan pesan lain
+POST http://localhost:3001/api/chat
+Content-Type: application/json
+
+{
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are Aldric, the tavern keeper in a medieval fantasy world."
+    },
+    {
+      "role": "user",
+      "content": "Aku benci banget kalau lagi fokus kerja tiba-tiba ada notifikasi masuk."
+    }
+  ]
+}
