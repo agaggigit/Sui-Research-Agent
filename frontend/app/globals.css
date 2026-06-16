@@ -1,26 +1,83 @@
 @import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap");
 
+/* ===== TAVERN: Dark Souls Color System ===== */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Core palette */
+  --ember: #c4793a;
+  --ember-bright: #e8943f;
+  --ember-dim: #7a4a22;
+  --gold: #d4a853;
+  --gold-bright: #f0c875;
+  --bone: #d6c9a8;
+  --ash: #8a7d6b;
+  --void: #0a0806;
+  --void-mid: #110e0a;
+  --void-surface: #1a1510;
+  --void-card: #221c14;
+  --void-border: #3a2e1e;
+  --blood: #6b1f1f;
+  --mist: rgba(196, 121, 58, 0.08);
+
+  /* Walrus/Sui brand */
+  --walrus-teal: #00c4b4;
+  --walrus-teal-dim: rgba(0, 196, 180, 0.15);
+  --sui-blue: #6fbcf0;
+
+  /* Shadows */
+  --shadow-ember: 0 0 20px rgba(196, 121, 58, 0.3);
+  --shadow-gold: 0 0 15px rgba(212, 168, 83, 0.25);
+  --shadow-deep: 0 4px 32px rgba(0, 0, 0, 0.8);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ===== ZEN BOARD: Clean Light System ===== */
+:root {
+  --zen-bg: #f8f7f4;
+  --zen-surface: #ffffff;
+  --zen-border: #e5e2db;
+  --zen-text: #2c2c2c;
+  --zen-muted: #8a8680;
+  --zen-accent: #4a7c6f;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--void);
+  color: var(--bone);
+  font-family: "Crimson Text", Georgia, serif;
+  -webkit-font-smoothing: antialiased;
 }
+
+/* ===== Scrollbar ===== */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--void-mid); }
+::-webkit-scrollbar-thumb { background: var(--ember-dim); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--ember); }
+
+/* ===== Utility Animations ===== */
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.85; }
+}
+@keyframes ember-pulse {
+  0%, 100% { box-shadow: 0 0 10px rgba(196, 121, 58, 0.3); }
+  50% { box-shadow: 0 0 25px rgba(196, 121, 58, 0.6); }
+}
+@keyframes walrus-scan {
+  0% { transform: translateY(-100%); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: translateY(200%); opacity: 0; }
+}
+@keyframes float-up {
+  0% { transform: translateY(0); opacity: 0.8; }
+  100% { transform: translateY(-20px); opacity: 0; }
+}
+
+.animate-flicker { animation: flicker 3s ease-in-out infinite; }
+.animate-ember-pulse { animation: ember-pulse 2s ease-in-out infinite; }
+
