@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600&family=Press+Start+2P&display=swap");
 @import "tailwindcss";
 
 /* ===== TAVERN: Dark Souls Color System ===== */
@@ -38,6 +38,44 @@
   --zen-text: #2c2c2c;
   --zen-muted: #8a8680;
   --zen-accent: #4a7c6f;
+  
+  /* Landing Page / Ekosistem */
+  --sky-top: #a1e2d9;
+  --sky-bottom: #fff3e0;
+  --grass-green: #4f8755;
+}
+
+/* ===== Glassmorphism Utilities ===== */
+.glass-panel {
+  backdrop-filter: blur(16px) saturate(1.8) brightness(1.1);
+  -webkit-backdrop-filter: blur(16px) saturate(1.8) brightness(1.1);
+  border-radius: 20px;
+}
+
+.glass-panel.dark {
+  background: rgba(255, 255, 255, 0.05); /* Frosty white overlay */
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow:
+    0 8px 32px 0 rgba(0, 0, 0, 0.3),
+    0 2px 16px 0 rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 0 rgba(255, 255, 255, 0.05);
+}
+
+.glass-panel.light {
+  background: rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow:
+    0 8px 32px 0 rgba(31, 38, 135, 0.15),
+    0 2px 16px 0 rgba(31, 38, 135, 0.05),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.4),
+    inset 0 -1px 0 0 rgba(255, 255, 255, 0.2);
+}
+
+.font-pixel {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.8em;
+  line-height: 1.5;
 }
 
 *, *::before, *::after {

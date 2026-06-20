@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
+import LandingNavbar from "@/components/LandingNavbar";
+import GrassHillBg from "@/components/GrassHillBg";
 
-export default function Home() {
+export default function LandingPage() {
   return (
     <div
       style={{
@@ -11,183 +13,139 @@ export default function Home() {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        justifyContent: "center",
-        padding: "2rem",
-        background: "var(--void)",
+        justifyContent: "flex-start",
+        padding: "0",
         position: "relative",
         overflow: "hidden",
+        fontFamily: '"Inter", sans-serif',
       }}
     >
-      {/* Ambient bg */}
-      <div
-        className="pointer-events-none fixed inset-0"
+      {/* Sky + Glass Portal + Grass Hill */}
+      <GrassHillBg />
+
+      {/* Navbar */}
+      <LandingNavbar />
+
+      {/* Main Content */}
+      <main
         style={{
-          background: `
-            radial-gradient(ellipse at 30% 70%, rgba(196,121,58,0.07) 0%, transparent 55%),
-            radial-gradient(ellipse at 70% 30%, rgba(0,196,180,0.05) 0%, transparent 55%)
-          `,
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "flex-start",
+          width: "100%",
+          padding: "2rem",
+          paddingBottom: "25vh",
+          position: "relative",
+          zIndex: 5,
         }}
-      />
-
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        style={{ textAlign: "center", maxWidth: 640, position: "relative" }}
       >
-        {/* Badge */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.1 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
           style={{
-            display: "inline-flex",
+            maxWidth: 800,
+            textAlign: "center",
+            display: "flex",
+            flexDirection: "column",
             alignItems: "center",
-            gap: "0.5rem",
-            padding: "0.3rem 0.9rem",
-            background: "var(--walrus-teal-dim)",
-            border: "1px solid var(--walrus-teal)",
-            borderRadius: "2px",
-            marginBottom: "1.5rem",
-            fontSize: "0.78rem",
-            color: "var(--walrus-teal)",
-            fontFamily: '"Inter", sans-serif',
-            letterSpacing: "0.06em",
           }}
         >
-          🌊 Sui Overflow 2026 · Walrus Track
-        </motion.div>
+          {/* Badge */}
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              padding: "0.4rem 1rem",
+              background: "rgba(255, 255, 255, 0.6)",
+              backdropFilter: "blur(8px)",
+              WebkitBackdropFilter: "blur(8px)",
+              border: "1px solid rgba(255, 255, 255, 0.8)",
+              borderRadius: "999px",
+              marginBottom: "1.5rem",
+              fontSize: "0.85rem",
+              color: "#0f766e",
+              fontWeight: 600,
+            }}
+          >
+            🌊 Secured by Walrus Protocol
+          </div>
 
-        <h1
-          className="animate-flicker"
-          style={{
-            fontFamily: '"Cinzel", serif',
-            fontSize: "clamp(2.2rem, 6vw, 3.5rem)",
-            color: "var(--gold)",
-            letterSpacing: "0.08em",
-            marginBottom: "0.75rem",
-            lineHeight: 1.2,
-          }}
-        >
-          AURA
-        </h1>
-        <p
-          style={{
-            fontFamily: '"Crimson Text", serif',
-            fontSize: "1.15rem",
-            color: "var(--bone)",
-            marginBottom: "0.5rem",
-            fontStyle: "italic",
-          }}
-        >
-          The Portable AI Soul
-        </p>
-        <p
-          style={{
-            fontFamily: '"Inter", sans-serif',
-            fontSize: "0.88rem",
-            color: "var(--ash)",
-            marginBottom: "3rem",
-            lineHeight: 1.7,
-            maxWidth: 480,
-            margin: "0 auto 3rem",
-          }}
-        >
-          Memori AI yang tidak terikat pada satu aplikasi. Simpan ke Walrus, bawa ke mana saja.
-        </p>
+          {/* Headline */}
+          <h1
+            style={{
+              fontFamily: '"Cinzel", serif',
+              fontSize: "clamp(2rem, 5vw, 3.5rem)",
+              color: "#1e293b",
+              lineHeight: 1.2,
+              marginBottom: "1.5rem",
+              textShadow: "0 4px 12px rgba(255,255,255,0.5)",
+            }}
+          >
+            Sebuah Ingatan yang Berjalan Bersamamu.
+            <br />
+            Di Mana Pun Kamu Melangkah.
+          </h1>
 
-        {/* App cards */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-          {/* Tavern */}
-          <Link href="/tavern" style={{ textDecoration: "none" }}>
-            <motion.div
-              whileHover={{ scale: 1.02, boxShadow: "var(--shadow-ember)" }}
-              whileTap={{ scale: 0.98 }}
-              style={{
-                padding: "1.75rem 1.25rem",
-                background: "var(--void-card)",
-                border: "1px solid var(--void-border)",
-                borderRadius: "2px",
-                cursor: "pointer",
-                transition: "border-color 0.2s",
-              }}
-              onMouseEnter={(e) =>
-                ((e.currentTarget as HTMLElement).style.borderColor =
-                  "var(--ember-dim)")
-              }
-              onMouseLeave={(e) =>
-                ((e.currentTarget as HTMLElement).style.borderColor =
-                  "var(--void-border)")
-              }
-            >
-              <div style={{ fontSize: "2rem", marginBottom: "0.75rem" }}>🍺</div>
-              <h2
-                style={{
-                  fontFamily: '"Cinzel", serif',
-                  color: "var(--gold)",
-                  fontSize: "1rem",
-                  letterSpacing: "0.08em",
-                  marginBottom: "0.5rem",
-                }}
-              >
-                Tavern Chat
-              </h2>
-              <p
-                style={{
-                  fontFamily: '"Inter", sans-serif',
-                  color: "var(--ash)",
-                  fontSize: "0.8rem",
-                  lineHeight: 1.6,
-                }}
-              >
-                App A · Ingestion Engine
-                <br />
-                Bicara, dan AI akan menyimpan memorimu ke Walrus
-              </p>
-            </motion.div>
-          </Link>
+          {/* Sub-headline */}
+          <p
+            style={{
+              fontSize: "1.1rem",
+              color: "#334155",
+              maxWidth: 640,
+              lineHeight: 1.6,
+              marginBottom: "3rem",
+            }}
+          >
+            AURA adalah teman digital yang mengunci memori Anda secara aman di jaringan
+            Walrus. Ia tidak akan melupakan cerita Anda, dan selalu hadir dalam bentuk yang
+            Anda butuhkan di setiap aplikasi.
+          </p>
 
-          {/* Zen Board */}
-          <Link href="/zenboard" style={{ textDecoration: "none" }}>
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              style={{
-                padding: "1.75rem 1.25rem",
-                background: "var(--zen-surface)",
-                border: "1px solid var(--zen-border)",
-                borderRadius: "2px",
-                cursor: "pointer",
-              }}
-            >
-              <div style={{ fontSize: "2rem", marginBottom: "0.75rem" }}>🪴</div>
-              <h2
+          {/* CTAs */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "1rem",
+            }}
+          >
+            <Link href="/demo" style={{ textDecoration: "none" }}>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 style={{
-                  fontFamily: '"Inter", sans-serif',
-                  color: "var(--zen-text)",
-                  fontSize: "1rem",
+                  padding: "1rem 2.5rem",
+                  background: "#0f172a",
+                  color: "#ffffff",
+                  border: "none",
+                  borderRadius: "999px",
+                  fontSize: "1.1rem",
                   fontWeight: 600,
-                  marginBottom: "0.5rem",
+                  cursor: "pointer",
+                  boxShadow: "0 8px 24px rgba(15, 23, 42, 0.3)",
                 }}
               >
-                Zen Board
-              </h2>
-              <p
-                style={{
-                  fontFamily: '"Inter", sans-serif',
-                  color: "var(--zen-muted)",
-                  fontSize: "0.8rem",
-                  lineHeight: 1.6,
-                }}
-              >
-                App B · Cross-Agent Recall
-                <br />
-                Tarik memori dari Walrus, dapatkan pengalaman personal
-              </p>
-            </motion.div>
-          </Link>
-        </div>
-      </motion.div>
+                Try the Interactive Demo ➔
+              </motion.button>
+            </Link>
+            <Link
+              href="#"
+              style={{
+                color: "#475569",
+                fontSize: "0.95rem",
+                textDecoration: "underline",
+                fontWeight: 500,
+              }}
+            >
+              See How It Works
+            </Link>
+          </div>
+        </motion.div>
+      </main>
     </div>
   );
 }
