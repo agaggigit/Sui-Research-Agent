@@ -1,0 +1,27 @@
+{
+  "identityId": "0x50f8eed3fbf070c54a5858f1987d1ea2272697dad8271339a1efad9f19a4e760",
+  "lastRestoredAt": "2026-06-20T12:44:51.992Z",
+  "totalMemories": 1,
+  "memories": [
+    {
+      "blobId": "rVmc9ekMLk8oJXo0ulFkWbWV0r-5VcAZZuCAsflaAVA",
+      "timestamp": "2026-06-19T21:24:37.020Z",
+      "data": {
+        "type": "work_pref",
+        "value": "hates loud notifications",
+        "tags": [
+          "work",
+          "focus",
+          "environment"
+        ],
+        "related_to": [
+          "stress",
+          "deep_work"
+        ],
+        "source_app": "tavern_chat",
+        "confirmed_by_user": true,
+        "timestamp": "2026-06-20T12:23:03.715Z"
+      }
+    }
+  ]
+}

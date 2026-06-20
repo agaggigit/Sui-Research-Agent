@@ -19,7 +19,7 @@ function computeSha256(data: string): string {
 }
 
 async function fetchBlobFromWalrus(blobId: string): Promise<string> {
-    const response = await fetch(`${WALRUS_AGGREGATOR_URL}/v1/${blobId}`);
+    const response = await fetch(`${WALRUS_AGGREGATOR_URL}/v1/blobs/${blobId}`);
     if (!response.ok) {
         throw new Error(`Failed to download blob from Walrus: ${response.statusText}`);
     }

@@ -27,7 +27,7 @@ async function uploadToWalrus(dataStr: string): Promise<string> {
     // [OPTIMASI W4.3]: Di Testnet, kita menggunakan epochs=1 untuk testing yang murah dan cepat.
     // Namun untuk PRODUCTION (Mainnet), gunakan `epochs=53` (sekitar 1 tahun) agar data aman lebih lama.
     console.log(`[Walrus] Mengunggah data ke Walrus Testnet (epochs=1)...`);
-    const response = await fetch(`${WALRUS_PUBLISHER_URL}/v1/store?epochs=1`, {
+    const response = await fetch(`${WALRUS_PUBLISHER_URL}/v1/blobs?epochs=1`, {
         method: 'PUT',
         body: dataStr
     });
