@@ -173,6 +173,30 @@ module aura_identity::aura_identity_tests {
         ts::end(scenario);
     }
 
+    #[test]
+    fun test_revoke_memory() {
+        let mut scenario = ts::begin(@0x1);
+        
+        // Mint
+        {
+            let ctx = ts::ctx(&mut scenario);
+            aura_identity::mint_identity(b"My Aura", b"ns", ctx);
+        };
+
+        // Revoke memory
+        ts::next_tx(&mut scenario, @0x1);
+        {
+            let identity = ts::take_shared<AuraIdentity>(&scenario);
+            let ctx = ts::ctx(&mut scenario);
+            
+            aura_identity::revoke_memory(&identity, string::utf8(b"blob123"), ctx);
+
+            ts::return_shared(identity);
+        };
+
+        ts::end(scenario);
+    }
+
     // === Marketplace Tests ===
 
     #[test]

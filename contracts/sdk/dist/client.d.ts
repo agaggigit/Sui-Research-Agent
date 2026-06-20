@@ -9,6 +9,7 @@ export declare class AuraClient {
         verified: boolean;
         data: MemoryFact | null;
     }>;
+    revoke(signer: Ed25519Keypair, identityId: string, blobId: string): Promise<string>;
     configureMarketplace(signer: Ed25519Keypair, identityId: string, marketConfig: MarketplaceConfig): Promise<string>;
     purchaseAccess(signer: Ed25519Keypair, identityId: string, paymentAmount: number, accessType?: string): Promise<string>;
     proveMemoryCategory(dataJson: string, fieldToProve: string): ZKMemoryProof;

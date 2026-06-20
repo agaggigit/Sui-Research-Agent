@@ -77,6 +77,13 @@ module aura_identity::aura_identity {
         attester: address,
     }
 
+    public struct MemoryRevoked has copy, drop {
+        identity_id: address,
+        blob_id: String,
+        epoch: u64,
+        revoker: address,
+    }
+
     /// Event ketika akses memori dibeli
     public struct MemoryAccessPurchased has copy, drop {
         identity_id: address,
@@ -234,6 +241,29 @@ module aura_identity::aura_identity {
             epoch: tx_context::epoch(ctx),
             timestamp: tx_context::epoch_timestamp_ms(ctx),
             attester: sender,
+        });
+    }
+
+    /// Revoke a previously attested memory blob. Can be called by owner OR active session key.
+    public entry fun revoke_memory(
+        identity: &AuraIdentity,
+        blob_id: String,
+        ctx: &mut TxContext
+    ) {
+        let sender = tx_context::sender(ctx);
+        
+        let is_owner = sender == identity.owner;
+        let is_valid_session = option::is_some(&identity.active_session_key) && 
+                               sender == *option::borrow(&identity.active_session_key) && 
+                               is_session_valid(identity, ctx);
+
+        assert!(is_owner || is_valid_session, ENotAuthorized);
+
+        event::emit(MemoryRevoked {
+            identity_id: object::uid_to_address(&identity.id),
+            blob_id,
+            epoch: tx_context::epoch(ctx),
+            revoker: sender,
         });
     }
 

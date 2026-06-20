@@ -6,3 +6,4 @@ export declare function verify(client: SuiJsonRpcClient, config: AuraConfig, ide
     verified: boolean;
     data: MemoryFact | null;
 }>;
+export declare function revokeMemory(client: SuiJsonRpcClient, signer: Ed25519Keypair, config: AuraConfig, identityId: string, blobId: string): Promise<string>;

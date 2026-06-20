@@ -1,7 +1,7 @@
 import { SuiJsonRpcClient, getJsonRpcFullnodeUrl } from '@mysten/sui/jsonRpc';
 import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
 import { AuraConfig, MemoryFact, AttestedMemory, RememberResult, MarketplaceConfig, ZKMemoryProof } from './types';
-import { remember, verify } from './memory';
+import { remember, verify, revokeMemory } from './memory';
 import { configureMarketplace, purchaseAccess } from './marketplace';
 import { generateMemoryProof, verifyMemoryProof } from './zkproof';
 
@@ -25,6 +25,10 @@ export class AuraClient {
 
     async verify(identityId: string, blobId: string): Promise<{ verified: boolean; data: MemoryFact | null }> {
         return await verify(this.client, this.config, identityId, blobId);
+    }
+
+    async revoke(signer: Ed25519Keypair, identityId: string, blobId: string): Promise<string> {
+        return await revokeMemory(this.client, signer, this.config, identityId, blobId);
     }
 
     // === Marketplace Operations ===

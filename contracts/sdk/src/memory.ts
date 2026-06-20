@@ -84,3 +84,30 @@ export async function verify(
 
     return { verified: false, data: null };
 }
+
+export async function revokeMemory(
+    client: SuiJsonRpcClient,
+    signer: Ed25519Keypair,
+    config: AuraConfig,
+    identityId: string,
+    blobId: string
+): Promise<string> {
+    const tx = new Transaction();
+    tx.moveCall({
+        target: `${config.packageId}::aura_identity::revoke_memory`,
+        arguments: [
+            tx.object(identityId),
+            tx.pure.string(blobId)
+        ],
+    });
+
+    const result = await client.signAndExecuteTransaction({
+        signer,
+        transaction: tx,
+        options: { showEffects: true }
+    });
+    
+    await client.waitForTransaction({ digest: result.digest });
+
+    return result.digest;
+}

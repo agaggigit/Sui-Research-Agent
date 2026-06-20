@@ -55,3 +55,20 @@ export async function verify(client, config, identityId, blobId) {
     }
     return { verified: false, data: null };
 }
+export async function revokeMemory(client, signer, config, identityId, blobId) {
+    const tx = new Transaction();
+    tx.moveCall({
+        target: `${config.packageId}::aura_identity::revoke_memory`,
+        arguments: [
+            tx.object(identityId),
+            tx.pure.string(blobId)
+        ],
+    });
+    const result = await client.signAndExecuteTransaction({
+        signer,
+        transaction: tx,
+        options: { showEffects: true }
+    });
+    await client.waitForTransaction({ digest: result.digest });
+    return result.digest;
+}
