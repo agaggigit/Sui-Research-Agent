@@ -1,0 +1,17 @@
+{
+  "name": "@aura-identity/sdk",
+  "version": "0.1.0",
+  "description": "Universal AI Passport SDK — Portable, verifiable AI memory on Sui + Walrus",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc"
+  },
+  "peerDependencies": {
+    "@mysten/sui": "^2.19.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

@@ -3,6 +3,8 @@ module aura_identity::aura_identity_tests {
     use sui::test_scenario::{Self as ts, Scenario};
     use aura_identity::aura_identity::{Self, AuraIdentity};
     use std::string;
+    use sui::coin;
+    use sui::sui::SUI;
 
     #[test]
     fun test_mint_and_update() {
@@ -165,6 +167,72 @@ module aura_identity::aura_identity_tests {
             // Should fail because it was revoked
             aura_identity::attest_memory(&identity, string::utf8(b"blob123"), string::utf8(b"hash123"), ctx);
 
+            ts::return_shared(identity);
+        };
+
+        ts::end(scenario);
+    }
+
+    // === Marketplace Tests ===
+
+    #[test]
+    fun test_marketplace_and_purchase() {
+        let mut scenario = ts::begin(@0x1);
+        
+        // Mint
+        {
+            let ctx = ts::ctx(&mut scenario);
+            aura_identity::mint_identity(b"My Aura", b"ns", ctx);
+        };
+        
+        // Configure marketplace
+        ts::next_tx(&mut scenario, @0x1);
+        {
+            let mut identity = ts::take_shared<AuraIdentity>(&scenario);
+            let ctx = ts::ctx(&mut scenario);
+            // Set price to 1000 MIST, for 10 epochs
+            aura_identity::configure_marketplace(&mut identity, 1000, 10, true, ctx);
+            ts::return_shared(identity);
+        };
+
+        // Bob (@0x2) buys access
+        ts::next_tx(&mut scenario, @0x2);
+        {
+            let mut identity = ts::take_shared<AuraIdentity>(&scenario);
+            let ctx = ts::ctx(&mut scenario);
+            let payment = coin::mint_for_testing<SUI>(1000, ctx);
+            aura_identity::purchase_memory_access(&mut identity, payment, b"full", ctx);
+            ts::return_shared(identity);
+        };
+
+        ts::end(scenario);
+    }
+
+    #[test]
+    #[expected_failure(abort_code = 2)] // EInsufficientPayment
+    fun test_marketplace_insufficient_payment() {
+        let mut scenario = ts::begin(@0x1);
+        
+        // Mint & configure
+        {
+            let ctx = ts::ctx(&mut scenario);
+            aura_identity::mint_identity(b"My Aura", b"ns", ctx);
+        };
+        ts::next_tx(&mut scenario, @0x1);
+        {
+            let mut identity = ts::take_shared<AuraIdentity>(&scenario);
+            let ctx = ts::ctx(&mut scenario);
+            aura_identity::configure_marketplace(&mut identity, 1000, 10, true, ctx);
+            ts::return_shared(identity);
+        };
+
+        // Bob tries to buy with 500 MIST
+        ts::next_tx(&mut scenario, @0x2);
+        {
+            let mut identity = ts::take_shared<AuraIdentity>(&scenario);
+            let ctx = ts::ctx(&mut scenario);
+            let payment = coin::mint_for_testing<SUI>(500, ctx);
+            aura_identity::purchase_memory_access(&mut identity, payment, b"full", ctx);
             ts::return_shared(identity);
         };
 
