@@ -25,68 +25,7 @@ type MemoryStatus =
   | "uploading"
   | "saved";
 
-/* =================== MOCK AI ENGINE =================== */
-const BARTENDER_RESPONSES = [
-  {
-    trigger: ["capek", "lelah", "tired", "exhausted", "penat"],
-    response:
-      "Ah, aku bisa lihat itu dari matamu, pengembara. Beristirahatlah sejenak di sini. Ceritakan apa yang membebanimu hari ini...",
-    memory: { type: "emotional_state", value: "kelelahan, butuh istirahat" },
-  },
-  {
-    trigger: ["coding", "kode", "programmer", "develop", "react", "javascript"],
-    response:
-      "Seorang penyihir kode, eh? Jiwa-jiwa sepertimu selalu datang ke kedai ini setelah berperang dengan bug-bug terkutuk. Sihir apa yang sedang kau pelajari?",
-    memory: {
-      type: "occupation",
-      value: "developer/programmer, bekerja dengan kode",
-    },
-  },
-  {
-    trigger: ["benci", "hate", "tidak suka", "ga suka", "males"],
-    response:
-      "Dendam yang dalam... aku mengerti. Musuh terkuat seringkali bukan monster di luar, tapi gangguan kecil yang mencuri fokusmu. Apa yang paling mengganggumu?",
-    memory: { type: "frustration", value: "sesuatu yang sangat tidak disukai" },
-  },
-  {
-    trigger: ["notifikasi", "notification", "berisik", "noise", "ramai"],
-    response:
-      "Ketenangan adalah harta paling langka di era ini. Aku punya ruang khusus di belakang kedai, bebas dari kebisingan. Kau tampaknya butuh suasana seperti itu untuk bekerja.",
-    memory: {
-      type: "work_preference",
-      value: "benci notifikasi berisik, butuh ketenangan",
-    },
-  },
-  {
-    trigger: ["senang", "suka", "love", "happy", "bagus", "keren"],
-    response:
-      "Ah, ada percikan api di matamu! Ceritakan lebih lanjut — apa yang membuatmu bersemangat hari ini?",
-    memory: null,
-  },
-];
-
-const DEFAULT_RESPONSES = [
-  "Kedai ini sudah berdiri sejak berabad-abad, menyaksikan ribuan pengembara datang dan pergi. Ceritakan kisahmu, aku punya waktu.",
-  "Hmm... kata-katamu menarik. Teruskan, aku mendengarkan dengan seksama.",
-  "Asap perapian membawa cerita ke seluruh penjuru ruangan ini. Tiap tamu punya rahasia. Apa rahasiamu?",
-  "Di luar badai mengamuk, tapi di sini kita aman. Minumlah dulu, lalu ceritakan apa yang ada di pikiranmu.",
-  "Setiap jiwa yang masuk ke sini meninggalkan jejak. Dan jejakmu... terasa berbeda dari yang lain.",
-];
-
-function getMockAIResponse(input: string): {
-  response: string;
-  memory: MemoryFact | null;
-} {
-  const lower = input.toLowerCase();
-  for (const item of BARTENDER_RESPONSES) {
-    if (item.trigger.some((t) => lower.includes(t))) {
-      return { response: item.response, memory: item.memory };
-    }
-  }
-  const random =
-    DEFAULT_RESPONSES[Math.floor(Math.random() * DEFAULT_RESPONSES.length)];
-  return { response: random, memory: null };
-}
+// Frontend has been connected to the backend API!
 
 /* =================== DELEGATE KEY MODAL =================== */
 function DelegateKeyModal({
@@ -540,27 +479,87 @@ export default function TavernPage() {
     setInput("");
     setIsTyping(true);
 
-    const { response, memory } = getMockAIResponse(userMsg.content);
+    try {
+      const res = await fetch("http://localhost:3001/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          identityId: delegateKey,
+          messages: messages.concat(userMsg).map((m) => ({
+            role: m.role === "ai" ? "assistant" : m.role, // FIX: Vercel AI SDK requires "assistant" instead of "ai"
+            content: m.content,
+          })),
+        }),
+      });
 
-    // Simulate AI thinking delay
-    await new Promise((r) =>
-      setTimeout(r, 800 + Math.random() * 600)
-    );
+      if (!res.body) throw new Error("No response body");
 
-    let savedMemory: MemoryFact | null = null;
-    if (memory) {
-      savedMemory = await triggerMemoryFlow(memory);
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let aiResponseText = "";
+      const aiMsgId = (Date.now() + 1).toString();
+
+      setMessages((prev) => [
+        ...prev,
+        { id: aiMsgId, role: "ai", content: "", timestamp: new Date() },
+      ]);
+      setIsTyping(false);
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        aiResponseText += chunk;
+        
+        // Parse Status Tokens from backend
+        let statusMatch;
+        while ((statusMatch = aiResponseText.match(/__STATUS__(.*?)__ENDSTATUS__/)) !== null) {
+          const statusStr = statusMatch[1];
+          setMemoryStatus(statusStr as MemoryStatus);
+          aiResponseText = aiResponseText.replace(statusMatch[0], "");
+        }
+        
+        // Parse Memory payload
+        if (aiResponseText.includes("__MEMORY__")) {
+          const parts = aiResponseText.split("__MEMORY__");
+          const actualText = parts[0];
+          
+          try {
+            const memData = JSON.parse(parts[1]);
+            setMemoryStatus("saved");
+            setTimeout(() => setMemoryStatus("idle"), 2500); // hilangkan badge setelah 2.5s
+            
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === aiMsgId ? { ...m, content: actualText, memoryExtracted: memData } : m
+              )
+            );
+            aiResponseText = actualText;
+            continue; // Skip the normal update below
+          } catch (e) {
+            console.error("Failed parsing memory JSON:", e);
+          }
+        }
+        
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === aiMsgId ? { ...m, content: aiResponseText } : m
+          )
+        );
+      }
+    } catch (error) {
+      console.error("Chat error:", error);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now().toString(),
+          role: "ai",
+          content: "Maaf, koneksi ke asisten terputus. Pastikan server backend menyala.",
+          timestamp: new Date(),
+        },
+      ]);
+      setIsTyping(false);
     }
-
-    const aiMsg: Message = {
-      id: (Date.now() + 1).toString(),
-      role: "ai",
-      content: response,
-      timestamp: new Date(),
-      memoryExtracted: savedMemory,
-    };
-    setMessages((prev) => [...prev, aiMsg]);
-    setIsTyping(false);
   };
 
   return (

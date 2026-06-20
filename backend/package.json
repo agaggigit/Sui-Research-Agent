@@ -13,6 +13,8 @@
   "dependencies": {
     "@ai-sdk/google": "^3.0.82",
     "@ai-sdk/openai": "^3.0.71",
+    "@aura-identity/sdk": "file:../contracts/sdk",
+    "@mysten/sui": "^2.19.0",
     "ai": "^6.0.206",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
