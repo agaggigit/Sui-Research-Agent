@@ -8,7 +8,7 @@ import { extractAndSaveMemory } from "./memory/extract";
 
 import path from "path";
 
-dotenv.config({ path: path.resolve(process.cwd(), "../.env.local") });
+dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 const app = express();
 app.use(cors());
