@@ -12,6 +12,7 @@
   "description": "",
   "dependencies": {
     "@ai-sdk/google": "^3.0.82",
+    "@ai-sdk/groq": "^3.0.42",
     "@ai-sdk/openai": "^3.0.71",
     "@aura-identity/sdk": "file:../contracts/sdk",
     "@mysten/sui": "^2.19.0",

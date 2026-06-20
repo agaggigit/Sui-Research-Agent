@@ -2,6 +2,9 @@
 
 Dokumen ini merangkum teknik injeksi _stream_ yang kita terapkan di file utama `server.ts` untuk menyelesaikan **Tugas Ketiga (Streaming Response)**.
 
+## 📦 Lokasi Environment Variable
+Untuk menjaga struktur proyek tetap rapi dan terisolasi, file konfigurasi rahasia (`.env.local`) yang sebelumnya berada di *root* proyek telah dipindahkan secara permanen ke dalam folder `backend/`. File `server.ts` telah dimodifikasi agar mencari file `.env.local` secara lokal menggunakan `path.resolve(process.cwd(), ".env.local")`. Hal ini memastikan *backend* bersifat mandiri.
+
 ## 🚀 Kenapa `pipeTextStreamToResponse` Dihapus?
 Pada awalnya, kita menggunakan fungsi `result.pipeTextStreamToResponse(res)` bawaan Vercel AI SDK. Fungsi ini sangat bagus dan mudah, tetapi ia bersifat kaku: _"Setelah teks obrolan AI selesai, koneksi langsung diputus secara paksa oleh SDK"_.
 

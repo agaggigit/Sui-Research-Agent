@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 import path from "path";
 
 // Memuat .env.local dari root folder
-dotenv.config({ path: path.resolve(process.cwd(), "../.env.local") });
+dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import { extractAndSaveMemory } from "./src/memory/extract";
 

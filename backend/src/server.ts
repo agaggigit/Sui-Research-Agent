@@ -1,21 +1,16 @@
+import "./env";
 import express, { Request, Response } from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import { streamText } from "ai";
 import { google } from "@ai-sdk/google";
-import { createOpenAI } from "@ai-sdk/openai";
+import { createGroq } from "@ai-sdk/groq";
 import { extractAndSaveMemory } from "./memory/extract";
-
-import path from "path";
-
-dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-const groq = createOpenAI({
-  baseURL: "https://api.groq.com/openai/v1",
+const groq = createGroq({
   apiKey: process.env.GROQ_API_KEY || "",
 });
 
@@ -24,55 +19,60 @@ Your hidden task is to extract user preferences, emotional state, work habits, a
 Be inquisitive but natural. Ask subtle questions about their "adventures" (work), what tires them out, or what environment they prefer to rest in.
 Keep your responses in character as a medieval tavern keeper. Do not break character.`;
 
+// Helper: Streaming chat + memory extraction
+async function handleChatStream(
+  res: Response,
+  model: any,
+  messages: any,
+  systemPrompt: string,
+  lastMessage: string,
+  identityId: string
+) {
+  const result = streamText({
+    model,
+    system: systemPrompt,
+    messages,
+  });
+
+  for await (const chunk of result.textStream) {
+    res.write(chunk);
+  }
+
+  const text = await result.text;
+  const memory = await extractAndSaveMemory(lastMessage, text, identityId, (status) => {
+    res.write(`__STATUS__${status}__ENDSTATUS__`);
+  });
+  if (memory) {
+    res.write(`__MEMORY__${JSON.stringify(memory)}`);
+  }
+  res.end();
+}
+
 app.post("/api/chat", async (req: Request, res: Response) => {
+  const { messages, identityId } = req.body;
+  const lastMessage = messages[messages.length - 1]?.content || "";
+
+  // Set header streaming agar response tidak terputus
+  res.setHeader("Content-Type", "text/plain; charset=utf-8");
+  res.setHeader("Transfer-Encoding", "chunked");
+
   try {
-    const { messages, identityId } = req.body;
-    const lastMessage = messages[messages.length - 1]?.content || "";
-
+    // Coba Gemini dulu (model utama)
+    await handleChatStream(res, google("gemini-2.5-flash") as any, messages, systemPrompt, lastMessage, identityId);
+  } catch (geminiError) {
+    console.warn("⚠️ Gemini gagal (kemungkinan kuota habis), beralih ke Groq...", (geminiError as Error).message);
     try {
-      const result = streamText({
-        model: google("gemini-2.5-flash") as any,
-        system: systemPrompt,
-        messages: messages as any,
-      });
-
-      for await (const chunk of result.textStream) {
-        res.write(chunk);
+      // Fallback ke Groq
+      await handleChatStream(res, groq("llama-3.3-70b-versatile") as any, messages, systemPrompt, lastMessage, identityId);
+    } catch (groqError) {
+      console.error("❌ Groq juga gagal:", groqError);
+      if (!res.headersSent) {
+        res.status(500).json({ error: "Semua model AI sedang tidak tersedia. Coba lagi nanti." });
+      } else {
+        res.write("\n\n[Maaf, terjadi gangguan koneksi. Silakan coba lagi.]");
+        res.end();
       }
-
-      const text = await result.text;
-      const memory = await extractAndSaveMemory(lastMessage, text, identityId, (status) => {
-        res.write(`__STATUS__${status}__ENDSTATUS__`);
-      });
-      if (memory) {
-        res.write(`__MEMORY__${JSON.stringify(memory)}`);
-      }
-      res.end();
-    } catch (geminiError) {
-      console.warn("Gemini failed, falling back to Groq:", geminiError);
-
-      const result = streamText({
-        model: groq("llama-3.3-70b-versatile") as any,
-        system: systemPrompt,
-        messages: messages as any,
-      });
-
-      for await (const chunk of result.textStream) {
-        res.write(chunk);
-      }
-
-      const text = await result.text;
-      const memory = await extractAndSaveMemory(lastMessage, text, identityId, (status) => {
-        res.write(`__STATUS__${status}__ENDSTATUS__`);
-      });
-      if (memory) {
-        res.write(`__MEMORY__${JSON.stringify(memory)}`);
-      }
-      res.end();
     }
-  } catch (error) {
-    console.error("Chat endpoint error:", error);
-    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
