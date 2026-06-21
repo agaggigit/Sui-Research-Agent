@@ -12,7 +12,7 @@ const getOpenRouterExtract = () => createOpenRouter({ apiKey: process.env.OPENRO
 
 const getAura = () => new AuraClient({
   network: 'testnet',
-  packageId: '0xc3427de7ebf039e490518bed162baf864bc2d15a09bd0636449129e1e71e5d14'
+  packageId: '0xa06895fe1ff9c0301aaadad6c2c1c5e9e02c28e40f4e055a487d65de079ff88a'
 });
 const getSigner = () => {
   if (process.env.AURA_SERVER_SECRET) {
@@ -58,13 +58,18 @@ export async function extractAndSaveMemory(
       object = result.object;
     } catch {
       console.warn("⚠️ Gemini gagal ekstraksi memori. Beralih ke OpenRouter (Nex-N2-Pro)...");
-      // 2. Fallback ke Nex-N2-Pro via OpenRouter yang MEMANG support structured output (json_schema)
-      const result = await generateObject({
-        model: getOpenRouterExtract()('nex-agi/nex-n2-pro:free'),
-        schema: memorySchema,
-        prompt: extractionPrompt + `\n\nUser: ${userMessage}\nAI: ${aiResponse}`,
-      });
-      object = result.object;
+      try {
+        // 2. Fallback ke Nex-N2-Pro via OpenRouter yang MEMANG support structured output (json_schema)
+        const result = await generateObject({
+          model: getOpenRouterExtract()('nex-agi/nex-n2-pro:free'),
+          schema: memorySchema,
+          prompt: extractionPrompt + `\n\nUser: ${userMessage}\nAI: ${aiResponse}`,
+        });
+        object = result.object;
+      } catch (openRouterError) {
+        console.error("❌ OpenRouter Extract Error (Timeout / Rate Limit):", openRouterError);
+        return null; // Gagal total di kedua provider
+      }
     }
     
     console.log("🧩 [DEBUG] Hasil ekstraksi AI:", JSON.stringify(object, null, 2));

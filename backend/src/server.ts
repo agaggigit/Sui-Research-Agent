@@ -76,6 +76,67 @@ app.post("/api/chat", async (req: Request, res: Response) => {
   }
 });
 
+import { z } from "zod";
+import { generateObject } from "ai";
+import { fetchUserMemories } from "./memory/recall";
+
+app.post("/api/recall", async (req: Request, res: Response) => {
+  const { identityId } = req.body;
+  if (!identityId) {
+    return res.status(400).json({ error: "identityId is required" });
+  }
+
+  try {
+    const memories = await fetchUserMemories(identityId);
+
+    if (!memories || memories.length === 0) {
+      return res.json({
+        occupation: "Pengguna Baru",
+        emotionalState: "Netral",
+        workPreference: "Belum ada preferensi",
+        greeting: "Halo! Sepertinya kita baru pertama kali bertemu. Aku belum memiliki ingatan apa pun tentangmu.",
+        silentMode: false,
+        tasks: []
+      });
+    }
+
+    const systemPrompt = `Berdasarkan kumpulan memori pengguna berikut:
+${JSON.stringify(memories)}
+
+Tugasmu:
+1. Ekstrak 'occupation' (pekerjaan), 'emotionalState' (kondisi emosi/mental terakhir), dan 'workPreference' (preferensi kerja).
+2. Buatkan 'greeting' (sapaan) yang sangat personal. Jika pengguna sedang lelah, buat sapaan yang menenangkan.
+3. Tentukan 'silentMode' (boolean) apakah harus true jika pengguna tidak suka gangguan/notifikasi.
+4. Buatkan 2-3 contoh 'tasks' (tugas dummy) yang relevan dengan pekerjaan mereka.`;
+
+    const result = await generateObject({
+      model: openrouter("nex-agi/nex-n2-pro:free") as any,
+      system: systemPrompt,
+      schema: z.object({
+        occupation: z.string(),
+        emotionalState: z.string(),
+        workPreference: z.string(),
+        greeting: z.string(),
+        silentMode: z.boolean(),
+        tasks: z.array(
+          z.object({
+            id: z.string(),
+            title: z.string(),
+            tag: z.string(),
+            status: z.enum(["todo", "inprogress", "done"])
+          })
+        ).default([])
+      }),
+      prompt: "Analisis memori tersebut dan kembalikan JSON profile yang sesuai.",
+    });
+
+    res.json(result.object);
+  } catch (error) {
+    console.error("Recall Error:", error);
+    res.status(500).json({ error: "Failed to recall memory from AI/Blockchain" });
+  }
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`🚀 Backend is running on http://localhost:${PORT}`);

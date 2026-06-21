@@ -2,6 +2,17 @@
 
 Dokumen ini adalah rangkuman utama (*master log*) dari semua perubahan yang telah kita lakukan di bagian Backend proyek ini. Poin-poin di bawah ini akan terus ditambahkan setiap kali kita melakukan modifikasi baru.
 
+## [21 Juni 2026] - Implementasi Cross-Agent Recall (Minggu 3)
+- **Modul Penarik Memori (Backend)**:
+  - Membuat `src/memory/recall.ts` untuk memanggil Sui RPC, melacak `MemoryAttested` *events*, membuang memori yang sudah di-`Revoke`, dan mengunduh data *blob* asli dari Walrus Network menggunakan `@aura-identity/sdk`.
+- **API Endpoint Baru (Backend)**:
+  - Menambahkan rute `POST /api/recall` di `src/server.ts`. Rute ini menyuntikkan (inject) memori mentah pengguna dari Walrus langsung ke dalam instruksi *system prompt* Nex-N2-Pro (OpenRouter).
+  - AI akan memproses memori mentah dan menghasilkan profil dinamis untuk disajikan ke *Dashboard*, mencakup: sapaan personal, kondisi emosi, dan penentuan aktivasi *Silent Mode*.
+- **Integrasi Zen Board (Frontend)**:
+  - Merombak halaman `frontend/src/app/demo/zenboard/page.tsx` dengan membuang penggunaan data *dummy/hardcode*.
+  - Menambahkan *Loading State* dinamis saat proses pengambilan memori dari Web3 berlangsung.
+  - Memastikan *Dashboard* dirender menggunakan data AI asli yang diperoleh dari fungsi *Recall*.
+
 ## [21 Juni 2026] - Migrasi LLM OpenRouter & Update Contract ID
 - **Migrasi Fallback LLM (Groq ke OpenRouter)**:
   - Mengganti *provider fallback* dari `@ai-sdk/groq` menjadi `@openrouter/ai-sdk-provider` karena model Llama di Groq bermasalah dalam menangani *Structured Output (JSON Schema)*.

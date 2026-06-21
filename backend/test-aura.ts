@@ -8,19 +8,18 @@ import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
 async function run() {
   const aura = new AuraClient({
     network: 'testnet',
-    packageId: '0xc3427de7ebf039e490518bed162baf864bc2d15a09bd0636449129e1e71e5d14'
+    packageId: '0xa06895fe1ff9c0301aaadad6c2c1c5e9e02c28e40f4e055a487d65de079ff88a'
   });
 
   if (!process.env.AURA_SERVER_SECRET) {
-    console.log("No secret key found");
-    return;
+    throw new Error("AURA_SERVER_SECRET is not set");
   }
 
   const signer = Ed25519Keypair.fromSecretKey(process.env.AURA_SERVER_SECRET);
   console.log("Wallet server:", signer.toSuiAddress());
 
   // Gunakan identityId dari browser user jika ada, atau buat yang palsu
-  const identityId = "0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"; // Mock identity
+  const identityId = "0x0000000000000000000000000000000000000000000000000000000000000000"; // Mock identity
 
   console.log("Menyimpan ke Walrus & Sui...");
   try {

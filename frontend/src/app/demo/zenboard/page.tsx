@@ -10,12 +10,13 @@ import KanbanBoard from "@/components/zenboard/KanbanBoard";
 import AddTaskForm from "@/components/zenboard/AddTaskForm";
 import ZenHeader from "@/components/zenboard/ZenHeader";
 import { useAuraChat } from "@/hooks/useAuraChat";
-import { RECALLED_MEMORY, Task } from "@/types/zenboard";
+import { MemoryProfile, Task, RECALLED_MEMORY } from "@/types/zenboard";
 
 export default function ZenBoardPage() {
-  const [phase, setPhase] = useState<"modal" | "dashboard">("modal");
+  const [phase, setPhase] = useState<"modal" | "loading" | "dashboard">("modal");
   const [delegateKey, setDelegateKey] = useState<string | null>(null);
-  const [tasks, setTasks] = useState<Task[]>(RECALLED_MEMORY.tasks);
+  const [memoryProfile, setMemoryProfile] = useState<MemoryProfile | null>(null);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [newTaskTag, setNewTaskTag] = useState("Frontend");
   const [addingTask, setAddingTask] = useState(false);
@@ -23,18 +24,44 @@ export default function ZenBoardPage() {
   const { messages, setMessages, input, setInput, memoryStatus, sendMessage } =
     useAuraChat(delegateKey);
 
-  // Set welcome message on first connect
-  const handleConnect = (key: string) => {
+  const handleConnect = async (key: string) => {
     setDelegateKey(key);
-    setMessages([
-      {
-        id: "welcome",
-        role: "ai",
-        content: RECALLED_MEMORY.greeting,
-        timestamp: new Date(),
-      },
-    ]);
-    setPhase("dashboard");
+    setPhase("loading");
+
+    try {
+      const res = await fetch("http://localhost:3001/api/recall", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ identityId: key }),
+      });
+      const profile = await res.json();
+
+      setMemoryProfile(profile);
+      setTasks(profile.tasks || []);
+      setMessages([
+        {
+          id: "welcome",
+          role: "ai",
+          content: profile.greeting,
+          timestamp: new Date(),
+        },
+      ]);
+      setPhase("dashboard");
+    } catch (err) {
+      console.error("Gagal menarik memori:", err);
+      // Fallback
+      setMemoryProfile(RECALLED_MEMORY);
+      setTasks(RECALLED_MEMORY.tasks);
+      setMessages([
+        {
+          id: "welcome",
+          role: "ai",
+          content: RECALLED_MEMORY.greeting,
+          timestamp: new Date(),
+        },
+      ]);
+      setPhase("dashboard");
+    }
   };
 
   const handleAddTask = () => {
@@ -67,15 +94,68 @@ export default function ZenBoardPage() {
         )}
       </AnimatePresence>
 
+      {/* Loading State Animation */}
+      <AnimatePresence>
+        {phase === "loading" && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{
+              position: "fixed",
+              top: 0, left: 0, right: 0, bottom: 0,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              background: "var(--zen-bg)",
+              zIndex: 1000
+            }}
+          >
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
+              style={{ fontSize: "3rem", marginBottom: "1rem" }}
+            >
+              🌀
+            </motion.div>
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              style={{ fontSize: "1.2rem", fontWeight: 500, color: "var(--walrus-teal)" }}
+            >
+              Menghubungkan identitas Aura...
+            </motion.p>
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 2.5 }}
+              style={{ fontSize: "1rem", color: "var(--zen-text)", marginTop: "0.5rem" }}
+            >
+              Menarik memori dari Walrus Network...
+            </motion.p>
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 4.5 }}
+              style={{ fontSize: "1rem", color: "var(--zen-text)", marginTop: "0.5rem" }}
+            >
+              Menerapkan preferensi...
+            </motion.p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Dashboard */}
       <AnimatePresence>
-        {phase === "dashboard" && (
+        {phase === "dashboard" && memoryProfile && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
           >
-            {RECALLED_MEMORY.silentMode && <SilentModeBar />}
+            {memoryProfile.silentMode && <SilentModeBar />}
 
             <ZenHeader
               delegateKey={delegateKey!}
@@ -134,9 +214,9 @@ export default function ZenBoardPage() {
                         lineHeight: 1.65,
                       }}
                     >
-                      {RECALLED_MEMORY.greeting}
+                      {memoryProfile.greeting}
                     </p>
-                    <MemoryChips memory={RECALLED_MEMORY} />
+                    <MemoryChips memory={memoryProfile} />
                   </div>
                 </div>
               </motion.div>

@@ -18,8 +18,9 @@ async function runTest() {
   console.log("🤖 Aldric :", balasanAI);
   console.log("\n⏳ Memanggil AI untuk mengekstrak memori dan menyimpannya ke blockchain...");
 
-  // Menjalankan fungsi yang baru saja kita edit di Tugas 2
-  await extractAndSaveMemory(percakapanUser, balasanAI);
+  // Menjalankan fungsi yang baru saja kita edit di Tugas 2 menggunakan Identity ID yang valid
+  const identityId = "0x0000000000000000000000000000000000000000000000000000000000000000";
+  await extractAndSaveMemory(percakapanUser, balasanAI, identityId);
 
   console.log("\n✅ Simulasi eksekusi Tugas 2 selesai.");
 }
