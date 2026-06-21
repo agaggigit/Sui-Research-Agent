@@ -18,3 +18,10 @@ Dokumen ini menjelaskan perubahan yang telah dilakukan di level _router/server_ 
 
 ### 📝 Catatan Penting untuk Tim Frontend:
 Untuk saat ini, fitur **Tugas 3 (Pengiriman Status Loading/Streaming)** BELUM diimplementasikan karena kode `server.ts` dikembalikan ke mode `pipeTextStreamToResponse` standar. Saat tim _Frontend_ sudah siap menyambungkan UI dengan _Backend_ asli (lepas dari _Mock Data_), koordinasikan kembali dengan tim _Backend_ untuk mengubah cara respons API ini dikirimkan.
+
+---
+## Update Terbaru: 21 Juni 2026
+### 3. Migrasi Fallback LLM (Groq ke OpenRouter)
+- Mengganti logika `catch` *fallback* saat kuota Gemini API habis.
+- Membuang provider Groq karena ketidakcocokan dalam merender *JSON Schema* secara disiplin.
+- Memasangkan `@openrouter/ai-sdk-provider` dengan model `nex-agi/nex-n2-pro:free` untuk mengambil alih _streaming chat_ jika model utama gagal.

@@ -1,14 +1,14 @@
 import { generateObject } from 'ai';
-import { createGroq } from '@ai-sdk/groq';
+import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 import { google } from '@ai-sdk/google';
 import { z } from 'zod';
 import { AuraClient } from '@aura-identity/sdk';
 import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
 
 // Model khusus untuk ekstraksi memori (terpisah dari model chat)
-// llama-3.1-8b-instant dipilih karena mendukung json_schema di Groq
-// Ref: https://console.groq.com/docs/structured-outputs#supported-models
-const getGroqExtract = () => createGroq({ apiKey: process.env.GROQ_API_KEY || "" });
+// nex-agi/nex-n2-pro:free dipilih karena mendukung structured output (json_schema) di OpenRouter
+// Ref: https://openrouter.ai/models/nex-agi/nex-n2-pro:free
+const getOpenRouterExtract = () => createOpenRouter({ apiKey: process.env.OPENROUTER_API_KEY || "" });
 
 const getAura = () => new AuraClient({
   network: 'testnet',
@@ -57,10 +57,10 @@ export async function extractAndSaveMemory(
       });
       object = result.object;
     } catch {
-      console.warn("⚠️ Gemini gagal ekstraksi memori. Beralih ke Groq (llama-3.1-8b-instant)...");
-      // 2. Fallback ke llama-3.1-8b-instant yang MEMANG support json_schema di Groq
+      console.warn("⚠️ Gemini gagal ekstraksi memori. Beralih ke OpenRouter (Nex-N2-Pro)...");
+      // 2. Fallback ke Nex-N2-Pro via OpenRouter yang MEMANG support structured output (json_schema)
       const result = await generateObject({
-        model: getGroqExtract()('llama-3.1-8b-instant'),
+        model: getOpenRouterExtract()('nex-agi/nex-n2-pro:free'),
         schema: memorySchema,
         prompt: extractionPrompt + `\n\nUser: ${userMessage}\nAI: ${aiResponse}`,
       });

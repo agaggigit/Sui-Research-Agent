@@ -3,15 +3,15 @@ import express, { Request, Response } from "express";
 import cors from "cors";
 import { streamText } from "ai";
 import { google } from "@ai-sdk/google";
-import { createGroq } from "@ai-sdk/groq";
+import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { extractAndSaveMemory } from "./memory/extract";
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-const groq = createGroq({
-  apiKey: process.env.GROQ_API_KEY || "",
+const openrouter = createOpenRouter({
+  apiKey: process.env.OPENROUTER_API_KEY || "",
 });
 
 const systemPrompt = `You are Aldric, the tavern keeper in a medieval fantasy world.
@@ -60,12 +60,12 @@ app.post("/api/chat", async (req: Request, res: Response) => {
     // Coba Gemini dulu (model utama)
     await handleChatStream(res, google("gemini-2.5-flash") as any, messages, systemPrompt, lastMessage, identityId);
   } catch (geminiError) {
-    console.warn("⚠️ Gemini gagal (kemungkinan kuota habis), beralih ke Groq...", (geminiError as Error).message);
+    console.warn("⚠️ Gemini gagal (kemungkinan kuota habis), beralih ke OpenRouter...", (geminiError as Error).message);
     try {
-      // Fallback ke Groq
-      await handleChatStream(res, groq("llama-3.3-70b-versatile") as any, messages, systemPrompt, lastMessage, identityId);
-    } catch (groqError) {
-      console.error("❌ Groq juga gagal:", groqError);
+      // Fallback ke OpenRouter (Nex-N2-Pro - free, mendukung structured output)
+      await handleChatStream(res, openrouter("nex-agi/nex-n2-pro:free") as any, messages, systemPrompt, lastMessage, identityId);
+    } catch (openrouterError) {
+      console.error("❌ OpenRouter juga gagal:", openrouterError);
       if (!res.headersSent) {
         res.status(500).json({ error: "Semua model AI sedang tidak tersedia. Coba lagi nanti." });
       } else {

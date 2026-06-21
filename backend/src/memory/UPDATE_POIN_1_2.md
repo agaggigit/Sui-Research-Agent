@@ -22,3 +22,9 @@ Dokumen ini dibuat agar anggota tim dapat dengan mudah memahami apa saja yang te
 
 ### 📝 Catatan Penting untuk Tim Web3 / Backend:
 Agar fitur ini benar-benar bisa menulis ke _blockchain_ (tidak berhenti di tahap _error_ "Uint8Array expected"), kalian **WAJIB** menambahkan variabel `AURA_SERVER_SECRET` di file `/.env.local` (di root proyek) yang berisi kunci rahasia (Private Key) Sui milik server. Kunci ini harus dalam format _byte array_ atau _hex_ yang sah sesuai standar `Ed25519` dari SDK `MemWal`.
+
+---
+## Update Terbaru: 21 Juni 2026
+### 3. Migrasi LLM dan Sinkronisasi Kontrak Blockchain
+- **OpenRouter Fallback**: Menyingkirkan Groq (yang bermasalah pada `json_schema`) dan menggantinya dengan `@openrouter/ai-sdk-provider` (Model `nex-agi/nex-n2-pro:free`) untuk `generateObject` ekstraksi memori.
+- **Update Package ID**: Memperbarui variabel `packageId` menjadi `0xa06895fe1ff9c0301aaadad6c2c1c5e9e02c28e40f4e055a487d65de079ff88a` untuk menyinkronkan dengan *Smart Contract* Identity versi terbaru di Sui Testnet.
